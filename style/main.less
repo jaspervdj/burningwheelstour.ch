@@ -22,10 +22,15 @@ body {
 
 header {
     background-image: url("../images/header-road.png");
-    width:            @content-width;
+    color:            @accent;
+    font-size:        42px;
     height:           261px;
     margin:           0px auto 0px auto;
     position:         relative;
+    text-align:       center;
+    text-transform:   uppercase;
+    width:            @content-width;
+    font-weight:      bold;
 }
 
 navigation {
@@ -38,16 +43,34 @@ navigation {
     width:          @content-width;
 
     a {
-        color:           @accent;
+        color:           @crushed-black;
         font-size:       30px;
         padding:         0px 20px 0px 20px;
         text-decoration: none;
+    }
+
+    a.active {
+        color:           @accent;
     }
 }
 
 main {
     width:  @content-width;
     margin: 0px auto 0px auto;
+}
+
+.sponsors {
+    text-align: center;
+
+    .sponsor {
+        height:     160px;
+        width:      200px;
+        text-align: center;
+
+        img {
+            vertical-align: middle;
+        }
+    }
 }
 
 @import "skater.less";

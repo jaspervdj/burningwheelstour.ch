@@ -1,9 +1,10 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import Control.Applicative ((<$>))
-import System.Process (rawSystem)
-import System.FilePath (joinPath, splitPath, dropExtension)
-import Hakyll
+import           Control.Applicative ((<$>))
+import           Data.Monoid         (mconcat)
+import           Hakyll
+import           System.FilePath     (dropExtension, joinPath, splitPath)
+import           System.Process      (rawSystem)
 
 
 --------------------------------------------------------------------------------
@@ -11,6 +12,13 @@ main :: IO ()
 main = hakyll $ do
     ----------------------------------------------------------------------------
     match "js/*.js" $ do
+        route   idRoute
+        compile copyFileCompiler
+
+
+    ----------------------------------------------------------------------------
+    -- Regular images
+    match "images/**.png" $ do
         route   idRoute
         compile copyFileCompiler
 
@@ -45,9 +53,9 @@ main = hakyll $ do
     match "*.html" $ do
         route $ indexRoute
         compile $
-            getResourceBody                                              >>=
-            loadAndApplyTemplate "templates/default.html" defaultContext >>=
-            prettifyIndexRoutes                                          >>=
+            getResourceBody                                       >>=
+            loadAndApplyTemplate "templates/default.html" pageCtx >>=
+            prettifyIndexRoutes                                   >>=
             relativizeUrls
 
     ----------------------------------------------------------------------------
@@ -73,3 +81,13 @@ prettifyIndexRoutes = return . fmap (withUrls prettify)
     prettify url@(x : xs)
         | "index.html" == url = []
         | otherwise           = x : prettify xs
+
+
+--------------------------------------------------------------------------------
+pageCtx :: Context String
+pageCtx = mconcat
+    [ functionField "activeClass" $ \[p] _ -> do
+        underlying <- getUnderlying
+        return $ if fromFilePath p == underlying then "active" else "inactive"
+    , defaultContext
+    ]

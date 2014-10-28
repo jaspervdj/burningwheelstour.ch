@@ -10,15 +10,24 @@
     <body>
         <div class="header-wide">
             <header>
+                Burning Wheels Tour 2014
                 <img class="predrift-from" id="skater"
                         src="/images/header-skater.png">
             </header>
         </div>
         <navigation>
-            <a href="/index.html">Home</a>
-            <a href="/events/index.html">Events</a>
-            <a href="/contact/index.html">Contact</a>
-            <a href="/archive/index.html">Archive</a>
+            <a class="$activeClass("index.html")$" href="/index.html">
+                Home
+            </a>
+            <a class="$activeClass("events.html")$" href="/events/index.html">
+                Events
+            </a>
+            <a class="$activeClass("contact.html")$" href="/contact/index.html">
+                Contact
+            </a>
+            <a class="$activeClass("archive.html")$" href="/archive/index.html">
+                Archive
+            </a>
         </navigation>
         <main>
             $body$
