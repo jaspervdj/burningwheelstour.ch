@@ -10,15 +10,21 @@ import Hakyll
 main :: IO ()
 main = hakyll $ do
     ----------------------------------------------------------------------------
+    match "js/*.js" $ do
+        route   idRoute
+        compile copyFileCompiler
+
+
+    ----------------------------------------------------------------------------
     -- SVG images
     match "images/*.svg" $ do
         route   $ setExtension "png"
         compile $ do
-            filePath       <- toFilePath <$> getUnderlying
-            TmpFile target <- newTmpFile "out.png"
-            _              <- unsafeCompiler $ rawSystem "inkscape"
-                ["-z" , "-e" , target , "-w", "800" , filePath]
-            makeItem $ TmpFile target
+            i         <- toFilePath <$> getUnderlying
+            TmpFile o <- newTmpFile "out.png"
+            _         <- unsafeCompiler $
+                            rawSystem "inkscape" ["-z", "-e", o, i]
+            makeItem $ TmpFile o
 
 
     ----------------------------------------------------------------------------

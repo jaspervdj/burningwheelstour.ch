@@ -1,5 +1,3 @@
-@import "prefixer.less";
-
 @broken-white: #eeeeee;
 
 @content-width: 800px;
@@ -17,6 +15,13 @@ header {
     width:            @content-width;
     height:           261px;
     margin:           12px auto 0px auto;
+    position:         relative;
+}
+
+#skater {
+    position: absolute;
+    top:      130px;
+    left:     100px;
 }
 
 navigation {
@@ -29,3 +34,5 @@ main {
     width:  @content-width;
     margin: 0px auto 0px auto;
 }
+
+@import "skater.less";
