@@ -49,14 +49,34 @@ main = hakyll $ do
 
 
     ----------------------------------------------------------------------------
+    -- Page per event
+    match "events/*.html" $ do
+        -- No output yet
+        compile getResourceBody
+
+
+    ----------------------------------------------------------------------------
+    -- Events page
+    match "events.html" $ do
+        route   $ indexRoute
+        compile $
+            getResourceBody                                         >>=
+            applyAsTemplate eventsCtx                               >>=
+            loadAndApplyTemplate "templates/default.html" eventsCtx >>=
+            prettifyIndexRoutes                                     >>=
+            relativizeUrls
+
+
+    ----------------------------------------------------------------------------
     -- Pages
     match "*.html" $ do
-        route $ indexRoute
+        route   $ indexRoute
         compile $
             getResourceBody                                       >>=
             loadAndApplyTemplate "templates/default.html" pageCtx >>=
             prettifyIndexRoutes                                   >>=
             relativizeUrls
+
 
     ----------------------------------------------------------------------------
     -- Templates
@@ -81,6 +101,20 @@ prettifyIndexRoutes = return . fmap (withUrls prettify)
     prettify url@(x : xs)
         | "index.html" == url = []
         | otherwise           = x : prettify xs
+
+
+--------------------------------------------------------------------------------
+eventsCtx :: Context String
+eventsCtx = mconcat
+    [ listField "events" eventCtx $ do
+        loadAll "events/*.html"
+    , pageCtx
+    ]
+
+
+--------------------------------------------------------------------------------
+eventCtx :: Context String
+eventCtx = defaultContext
 
 
 --------------------------------------------------------------------------------
