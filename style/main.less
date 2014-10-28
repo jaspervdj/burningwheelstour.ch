@@ -1,10 +1,12 @@
 @broken-white:  #eeeeee;
 @crushed-black: #222222;
+@accent:        #bb2211;
 
 @content-width: 800px;
 
 html {
-    background-color:    @broken-white;
+    background-color: @broken-white;
+    color:            @crushed-black;
 }
 
 body {
@@ -27,16 +29,19 @@ header {
 }
 
 navigation {
-    display:    block;
-    width:      @content-width;
-    margin:     6px auto 6px auto;
-    text-align: center;
+    border-bottom:  solid 2px @accent;
+    display:        block;
+    margin:         18px auto 12px auto;
+    padding:        0px 0px 6px 0px;
+    text-transform: uppercase;
+    text-align:     center;
+    width:          @content-width;
 
     a {
+        color:           @accent;
+        font-size:       30px;
+        padding:         0px 20px 0px 20px;
         text-decoration: none;
-        color:           @crushed-black;
-        font-size:       24px;
-        margin:          0px 20px 0px 20px;
     }
 }
 
