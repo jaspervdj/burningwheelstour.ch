@@ -1,4 +1,5 @@
-@broken-white: #eeeeee;
+@broken-white:  #eeeeee;
+@crushed-black: #222222;
 
 @content-width: 800px;
 
@@ -19,9 +20,17 @@ header {
 }
 
 navigation {
-    display: block;
-    width:   @content-width;
-    margin:  0px auto 0px auto;
+    display:    block;
+    width:      @content-width;
+    margin:     6px auto 6px auto;
+    text-align: center;
+
+    a {
+        text-decoration: none;
+        color:           @crushed-black;
+        font-size:       24px;
+        margin:          0px 20px 0px 20px;
+    }
 }
 
 main {
@@ -30,3 +39,4 @@ main {
 }
 
 @import "skater.less";
+@import "typography.less";
