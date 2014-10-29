@@ -2,31 +2,8 @@
 title: Events
 ---
 
+<h1>Burning Wheels Tour 2015</h1>
+
 Events for the 2015 season will be announced in due time.
 
-<ul>
-    $for(events)$
-    <li>
-        $dates$: $title$
-    </li>
-    $endfor$
-</ul>
-
-<!--
-<p>
-    Events: (description of each event, here you'd probably need 2 levels: a)
-    all event names, b) content as described bellow)
-</p>
-<ul>
-    <li>Title picture (flyer, poster)</li>
-    <li>Date</li>
-    <li>Place</li>
-    <li>Type (Freeride, Slidejam, Slalom, Race, etc..)</li>
-    <li>Where and when and how to register?</li>
-    <li>Ranking (if available)</li>
-    <li>Videos</li>
-    <li>photos</li>
-    <li>Link to the Facebook event</li>
-    <li>Media texts.</li>
-</ul>
--->
+$partial("templates/event-list.html")$

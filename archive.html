@@ -4,11 +4,5 @@ title: Archive
 
 $for(years)$
     <h1>$year$</h1>
-    <ul>
-        $for(events)$
-        <li>
-            $dates$: $title$
-        </li>
-        $endfor$
-    </ul>
+    $partial("templates/event-list.html")$
 $endfor$

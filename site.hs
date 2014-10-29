@@ -58,7 +58,13 @@ main = hakyll $ do
     -- Page per event
     match "events/*.html" $ do
         -- No output yet
-        compile getResourceBody
+        route   $ indexRoute
+        compile $
+            getResourceBody                                        >>=
+            loadAndApplyTemplate "templates/event.html"   eventCtx >>=
+            loadAndApplyTemplate "templates/default.html" eventCtx >>=
+            prettifyIndexRoutes                                    >>=
+            relativizeUrls
 
 
     ----------------------------------------------------------------------------
@@ -124,7 +130,9 @@ prettifyIndexRoutes = return . fmap (withUrls prettify)
 --------------------------------------------------------------------------------
 eventsCtx :: Context String
 eventsCtx = mconcat
-    [ listField "events" eventCtx $ mapM load . fst =<< findEvents
+    [ listField "events" eventCtx $ do
+        (current, _) <- findEvents
+        recentFirst =<< mapM load current
     , pageCtx
     ]
 
@@ -140,9 +148,6 @@ archiveCtx = mconcat
     , pageCtx
     ]
   where
-    getYear :: UTCTime -> Integer
-    getYear utct = let (year, _, _) = toGregorian (utctDay utct) in year
-
     yearCtx :: Context Integer
     yearCtx = mconcat
         [ field "year" $ return . show . itemBody
@@ -152,13 +157,24 @@ archiveCtx = mconcat
                 (fmap ((== itemBody yearItem) . getYear) .
                     getItemUTC defaultTimeLocale)
                 archived
-            mapM load thisYear
+            recentFirst =<< mapM load thisYear
         ]
 
 
 --------------------------------------------------------------------------------
 eventCtx :: Context String
-eventCtx = defaultContext
+eventCtx = mconcat
+    [ field "year" $
+        fmap (show . getYear) . getItemUTC defaultTimeLocale . itemIdentifier
+    , functionField "activeClass" $ \[p] item -> do
+        archived <- getMetadataField (itemIdentifier item) "archived"
+        return $ case (archived, fromFilePath p) of
+            (Just "true", "archive.html") -> "active"
+            (Just "true", _)              -> "inactive"
+            (_,           "events.html")  -> "active"
+            _                             -> "inactive"
+    , defaultContext
+    ]
 
 
 --------------------------------------------------------------------------------
@@ -179,3 +195,8 @@ findEvents = do
             partition (\(_, md) -> M.lookup "archived" md /= Just "true") $
             metadatas
     return (map fst current, map fst archived)
+
+
+--------------------------------------------------------------------------------
+getYear :: UTCTime -> Integer
+getYear utct = let (year, _, _) = toGregorian (utctDay utct) in year
