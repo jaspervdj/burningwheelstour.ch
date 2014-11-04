@@ -8,9 +8,20 @@ import qualified Data.Map            as M
 import           Data.Monoid         (mconcat)
 import           Data.Time           (UTCTime, toGregorian, utctDay)
 import           Hakyll
-import           System.FilePath     (dropExtension, joinPath, splitPath)
+import           System.FilePath     (dropExtension, joinPath, splitDirectories,
+                                      splitPath)
 import           System.Locale       (defaultTimeLocale)
 import           System.Process      (rawSystem)
+
+
+--------------------------------------------------------------------------------
+eventsP :: Pattern
+eventsP = "events/*" .&&. complement "events/archive.html"
+
+
+--------------------------------------------------------------------------------
+pagesP :: Pattern
+pagesP = "*.html" .||. "events/archive.html"
 
 
 --------------------------------------------------------------------------------
@@ -56,7 +67,7 @@ main = hakyll $ do
 
     ----------------------------------------------------------------------------
     -- Page per event
-    match "events/*.html" $ do
+    match eventsP $ do
         -- No output yet
         route   $ indexRoute
         compile $
@@ -69,7 +80,7 @@ main = hakyll $ do
 
     ----------------------------------------------------------------------------
     -- Pages
-    match "*.html" $ do
+    match pagesP $ do
         route   $ indexRoute
         compile $
             getResourceBody                                       >>=
@@ -109,12 +120,18 @@ eventCtx :: Context String
 eventCtx = mconcat
     [ field "year" $
         fmap (show . getYear) . getItemUTC defaultTimeLocale . itemIdentifier
-    , functionField "activeClass" $ \[p] _ -> do
-        return $ case fromFilePath p of
-            "events.html" -> "active"
-            _             -> "inactive"
+    , activeClassField
     , defaultContext
     ]
+
+
+--------------------------------------------------------------------------------
+activeClassField :: Context a
+activeClassField = functionField "activeClass" $ \[p] _ -> do
+    path <- toFilePath <$> getUnderlying
+    return $ if dropExtension (head (splitDirectories path)) == p
+        then "active"
+        else "inactive"
 
 
 --------------------------------------------------------------------------------
@@ -128,9 +145,7 @@ pageCtx = mconcat
     , listField "events" eventCtx $ do
         (current, _) <- findEvents
         chronological =<< mapM load current
-    , functionField "activeClass" $ \[p] _ -> do
-        underlying <- getUnderlying
-        return $ if fromFilePath p == underlying then "active" else "inactive"
+    , activeClassField
     , defaultContext
     ]
   where
@@ -150,7 +165,7 @@ pageCtx = mconcat
 --------------------------------------------------------------------------------
 findEvents :: Compiler ([Identifier], [Identifier])  -- current, archived
 findEvents = do
-    metadatas <- getAllMetadata "events/*.html"
+    metadatas <- getAllMetadata eventsP
     let (current, archived) =
             partition (\(_, md) -> M.lookup "archived" md /= Just "true") $
             metadatas
