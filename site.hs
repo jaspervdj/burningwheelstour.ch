@@ -68,35 +68,12 @@ main = hakyll $ do
 
 
     ----------------------------------------------------------------------------
-    -- Events page
-    match "events.html" $ do
-        route   $ indexRoute
-        compile $
-            getResourceBody                                         >>=
-            applyAsTemplate eventsCtx                               >>=
-            loadAndApplyTemplate "templates/default.html" eventsCtx >>=
-            prettifyIndexRoutes                                     >>=
-            relativizeUrls
-
-
-    ----------------------------------------------------------------------------
-    -- Archive page
-    match "archive.html" $ do
-        route   $ indexRoute
-        compile $
-            getResourceBody                                          >>=
-            applyAsTemplate archiveCtx                               >>=
-            loadAndApplyTemplate "templates/default.html" archiveCtx >>=
-            prettifyIndexRoutes                                      >>=
-            relativizeUrls
-
-
-    ----------------------------------------------------------------------------
     -- Pages
     match "*.html" $ do
         route   $ indexRoute
         compile $
             getResourceBody                                       >>=
+            applyAsTemplate pageCtx                               >>=
             loadAndApplyTemplate "templates/default.html" pageCtx >>=
             prettifyIndexRoutes                                   >>=
             relativizeUrls
@@ -128,24 +105,33 @@ prettifyIndexRoutes = return . fmap (withUrls prettify)
 
 
 --------------------------------------------------------------------------------
-eventsCtx :: Context String
-eventsCtx = mconcat
-    [ listField "events" eventCtx $ do
-        (current, _) <- findEvents
-        recentFirst =<< mapM load current
-    , pageCtx
+eventCtx :: Context String
+eventCtx = mconcat
+    [ field "year" $
+        fmap (show . getYear) . getItemUTC defaultTimeLocale . itemIdentifier
+    , functionField "activeClass" $ \[p] _ -> do
+        return $ case fromFilePath p of
+            "events.html" -> "active"
+            _             -> "inactive"
+    , defaultContext
     ]
 
 
 --------------------------------------------------------------------------------
-archiveCtx :: Context String
-archiveCtx = mconcat
+pageCtx :: Context String
+pageCtx = mconcat
     [ listField "years" yearCtx $ do
         (_, archived) <- findEvents
         years         <-
             mapM (fmap getYear . getItemUTC defaultTimeLocale) archived
         mapM makeItem $ nub $ reverse $ sort years
-    , pageCtx
+    , listField "events" eventCtx $ do
+        (current, _) <- findEvents
+        chronological =<< mapM load current
+    , functionField "activeClass" $ \[p] _ -> do
+        underlying <- getUnderlying
+        return $ if fromFilePath p == underlying then "active" else "inactive"
+    , defaultContext
     ]
   where
     yearCtx :: Context Integer
@@ -157,34 +143,8 @@ archiveCtx = mconcat
                 (fmap ((== itemBody yearItem) . getYear) .
                     getItemUTC defaultTimeLocale)
                 archived
-            recentFirst =<< mapM load thisYear
+            chronological =<< mapM load thisYear
         ]
-
-
---------------------------------------------------------------------------------
-eventCtx :: Context String
-eventCtx = mconcat
-    [ field "year" $
-        fmap (show . getYear) . getItemUTC defaultTimeLocale . itemIdentifier
-    , functionField "activeClass" $ \[p] item -> do
-        archived <- getMetadataField (itemIdentifier item) "archived"
-        return $ case (archived, fromFilePath p) of
-            (Just "true", "archive.html") -> "active"
-            (Just "true", _)              -> "inactive"
-            (_,           "events.html")  -> "active"
-            _                             -> "inactive"
-    , defaultContext
-    ]
-
-
---------------------------------------------------------------------------------
-pageCtx :: Context String
-pageCtx = mconcat
-    [ functionField "activeClass" $ \[p] _ -> do
-        underlying <- getUnderlying
-        return $ if fromFilePath p == underlying then "active" else "inactive"
-    , defaultContext
-    ]
 
 
 --------------------------------------------------------------------------------

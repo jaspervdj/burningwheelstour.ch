@@ -39,18 +39,29 @@ navigation {
     margin:         18px auto 12px auto;
     padding:        0px 0px 6px 0px;
     text-transform: uppercase;
-    text-align:     center;
     width:          @content-width;
+    position:       relative;
 
     a {
         color:           @crushed-black;
         font-size:       30px;
-        padding:         0px 20px 0px 20px;
+        padding:         0px;
         text-decoration: none;
+        margin:          0px 20px 0px 0px;
     }
 
     a.active {
         color: @accent;
+    }
+
+    .social-media-icons {
+        position: absolute;
+        right:    0px;
+        bottom:   0px;
+
+        a {
+            margin: 0px 0px 0px 0px;
+        }
     }
 }
 
