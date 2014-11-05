@@ -2,9 +2,11 @@
 title: Past Events
 ---
 
-<a href="/events/index.html"><h1>Current Events</h1></a>
+<h1>Past Events</h1>
 
 $for(years)$
-    <h1>$year$</h1>
+    <h2>$year$</h2>
     $partial("templates/event-list.html")$
 $endfor$
+
+<a href="/events/index.html"><h1>Back to current events</h1></a>

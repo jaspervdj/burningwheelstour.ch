@@ -72,6 +72,7 @@ main = hakyll $ do
         route   $ indexRoute
         compile $
             getResourceBody                                        >>=
+            return . fmap demoteHeaders                            >>=
             loadAndApplyTemplate "templates/event.html"   eventCtx >>=
             loadAndApplyTemplate "templates/default.html" eventCtx >>=
             prettifyIndexRoutes                                    >>=
