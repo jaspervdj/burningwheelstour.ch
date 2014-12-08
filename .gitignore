@@ -1,3 +1,6 @@
 _site/
 _cache/
 deploy.sh
+site
+site.hi
+site.o
