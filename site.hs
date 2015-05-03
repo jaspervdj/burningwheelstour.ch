@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Control.Applicative ((<$>), (<*>), empty)
-import           Control.Monad       (filterM, mapM)
+import           Control.Applicative (empty, (<$>))
+import           Control.Monad       (filterM)
 import           Data.List           (nub, partition, sort)
 import qualified Data.Map            as M
 import           Data.Monoid         (mconcat)
@@ -92,6 +92,7 @@ main = hakyll $ do
         compile $
             getResourceBody                                        >>=
             return . fmap demoteHeaders                            >>=
+            applyAsTemplate eventCtx                               >>=
             loadAndApplyTemplate "templates/event.html"   eventCtx >>=
             loadAndApplyTemplate "templates/default.html" eventCtx >>=
             prettifyIndexRoutes                                    >>=
@@ -150,6 +151,13 @@ eventCtx = mconcat
         case identifiers of
             [identifier] -> maybe empty toUrl <$> getRoute identifier
             _            -> empty
+    , functionField "flickr" $ \args _ -> case args of
+        [album] -> return $
+            "<iframe src=\"" ++ album ++ "/player\"                      \
+            \   width=\"800\" height=\"600\" frameborder=\"0\"           \
+            \   allowfullscreen webkitallowfullscreen mozallowfullscreen \
+            \   oallowfullscreen msallowfullscreen></iframe>"
+        _ -> fail "invalid args for flickr"
     , activeClassField
     , defaultContext
     ]
