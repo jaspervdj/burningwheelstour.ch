@@ -1,15 +1,16 @@
 --------------------------------------------------------------------------------
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 import           Control.Applicative (empty, (<$>))
 import           Control.Monad       (filterM)
 import           Data.List           (nub, partition, sort)
 import qualified Data.Map            as M
 import           Data.Monoid         (mconcat)
-import           Data.Time           (UTCTime, toGregorian, utctDay)
+import           Data.Time           (UTCTime, defaultTimeLocale, toGregorian,
+                                      utctDay)
 import           Hakyll
 import           System.FilePath     (dropExtension, joinPath, splitDirectories,
                                       splitPath, takeBaseName)
-import           System.Locale       (defaultTimeLocale)
 import           System.Process      (rawSystem)
 
 
