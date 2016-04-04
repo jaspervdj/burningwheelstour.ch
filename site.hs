@@ -5,12 +5,12 @@ import           Control.Applicative (empty, (<$>))
 import           Control.Monad       (filterM)
 import           Data.List           (nub, partition, sort)
 import qualified Data.Map            as M
-import           Data.Monoid         (mconcat)
+import           Data.Monoid         (mconcat, (<>))
 import           Data.Time           (UTCTime, defaultTimeLocale, toGregorian,
                                       utctDay)
 import           Hakyll
 import           System.FilePath     (dropExtension, joinPath, splitDirectories,
-                                      splitPath, takeBaseName)
+                                      splitPath, takeBaseName, takeExtension)
 import           System.Process      (rawSystem)
 
 
@@ -47,9 +47,9 @@ main = hakyll $ do
             moveDownIntoDirectory "small" (toFilePath identifier)
         compile $ do
             i         <- toFilePath <$> getUnderlying
-            TmpFile o <- newTmpFile "out.jpg"
-            _         <- unsafeCompiler $
-                            rawSystem "convert" ["-resize", "300x", i, o]
+            TmpFile o <- newTmpFile $ "out" <> takeExtension i
+            _         <- unsafeCompiler $ rawSystem "convert"
+                    ["-resize", "300x", "-filter", "Sinc", i, o]
             makeItem $ TmpFile o
 
 
