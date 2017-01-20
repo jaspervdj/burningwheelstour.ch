@@ -4,7 +4,6 @@
 import           Control.Applicative (empty, (<$>))
 import           Control.Monad       (filterM)
 import           Data.List           (nub, partition, sort)
-import qualified Data.Map            as M
 import           Data.Monoid         (mconcat, (<>))
 import           Data.Time           (UTCTime, defaultTimeLocale, toGregorian,
                                       utctDay)
@@ -206,7 +205,7 @@ findEvents :: Compiler ([Identifier], [Identifier])  -- current, archived
 findEvents = do
     metadatas <- getAllMetadata eventsP
     let (current, archived) =
-            partition (\(_, md) -> M.lookup "archived" md /= Just "true") $
+            partition (\(_, md) -> lookupString "archived" md /= Just "true") $
             metadatas
     return (map fst current, map fst archived)
 
